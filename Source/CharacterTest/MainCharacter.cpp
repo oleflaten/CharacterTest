@@ -41,7 +41,10 @@ AMainCharacter::AMainCharacter()
 	OurAttack->OnComponentBeginOverlap.AddDynamic(this, &AMainCharacter::OnOverlap);
 
 	//Using this for run speed. Have to set it to other than default 600 = walkspeed
-	GetCharacterMovement()->MaxCustomMovementSpeed = 1000.f;;
+	GetCharacterMovement()->MaxCustomMovementSpeed = 1000.f;
+
+	GetCharacterMovement()->GetNavAgentPropertiesRef().bCanCrouch = true;
+	GetCharacterMovement()->CrouchedHalfHeight = 60.f;
 }
 
 // Called when the game starts or when spawned
