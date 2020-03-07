@@ -9,6 +9,7 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/BoxComponent.h"
 #include "DestructableBox.h"
+#include "Animation/AnimInstance.h"
 
 // Sets default values
 AMainCharacter::AMainCharacter()
@@ -32,13 +33,13 @@ AMainCharacter::AMainCharacter()
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	FollowCamera->SetRelativeRotation(FRotator(0.f, 15.f, 0.f));	//Does not work correctly - set in editor
 
-	OurAttack = CreateDefaultSubobject<UBoxComponent>(TEXT("PlayerAttack"));
-	OurAttack->InitBoxExtent(FVector(30.f, 30.f, 30.f));
-	OurAttack->SetupAttachment(RootComponent);
-	OurAttack->SetGenerateOverlapEvents(false);
-	OurAttack->SetRelativeLocation(AttackPlacement);
+	AttackCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("AttackBox"));
+	AttackCollider->InitBoxExtent(FVector(15.f, 15.f, 15.f));
+	//OurAttack->SetupAttachment(RootComponent);
+	AttackCollider->SetGenerateOverlapEvents(false);
+	AttackCollider->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, FName("RightHandSocket"));
 
-	OurAttack->OnComponentBeginOverlap.AddDynamic(this, &AMainCharacter::OnOverlap);
+	AttackCollider->OnComponentBeginOverlap.AddDynamic(this, &AMainCharacter::OnOverlap);
 
 	//Using this for run speed. Have to set it to other than default 600 = walkspeed
 	GetCharacterMovement()->MaxCustomMovementSpeed = 1000.f;
@@ -58,20 +59,20 @@ void AMainCharacter::BeginPlay()
 	//Safer to do in BeginPlay, because it then would get changes made in editor
 	MaxWalkSpeed = GetCharacterMovement()->MaxWalkSpeed;
 	MaxRunSpeed = GetCharacterMovement()->MaxCustomMovementSpeed;	//if doing this we don't need UProperties on these variables
+
+	//Just debugging strange behaviour
+	if (AttackCollider->GetGenerateOverlapEvents() == true)
+	{
+		AttackCollider->SetGenerateOverlapEvents(false);
+		UE_LOG(LogTemp, Error, TEXT("Attack Collider GenerateOverlapEvents was set to true !"))
+	}
 }
 
 // Called every frame
 void AMainCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	//Help functionallity for smashing - only needed because we have no attack-animation
-	if (isSmashing)
-	{
-		//Move the hitbox to trigger the overlap event
-		OurAttack->SetRelativeLocation(AttackPlacement + temp);
-		temp *= -1.f;	
-	}
+	//UE_LOG(LogTemp, Warning, TEXT("isAttacking %s"), (AttackCollider->GetGenerateOverlapEvents() ? TEXT("True") : TEXT("False")))
 }
 
 // Called to bind functionality to input
@@ -88,8 +89,8 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	PlayerInputComponent->BindAction("Crouch", IE_Released, this, &AMainCharacter::StopCrouch);
 	PlayerInputComponent->BindAction("Run", IE_Pressed, this, &AMainCharacter::StartRun);
 	PlayerInputComponent->BindAction("Run", IE_Released, this, &AMainCharacter::StopRun);
-	PlayerInputComponent->BindAction("Smash", IE_Pressed, this, &AMainCharacter::StartSmash);
-	PlayerInputComponent->BindAction("Smash", IE_Released, this, &AMainCharacter::StopSmash);
+	PlayerInputComponent->BindAction("Attack", IE_Pressed, this, &AMainCharacter::StartAttack);
+	PlayerInputComponent->BindAction("Attack", IE_Released, this, &AMainCharacter::StopAttack);
 	
 	PlayerInputComponent->BindAction("SwitchInput", IE_Pressed, this, &AMainCharacter::SwitchInputType);
 }
@@ -97,7 +98,7 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 void AMainCharacter::MoveForward(float Value)
 {
 	FVector Direction;
-	if (normalInputType)
+	if (bNormalInputType)
 	{
 		// get forward vector
 		 Direction = GetActorForwardVector();
@@ -115,7 +116,7 @@ void AMainCharacter::MoveForward(float Value)
 void AMainCharacter::MoveRight(float Value)
 {
 	FVector Direction;
-	if (normalInputType)
+	if (bNormalInputType)
 	{
 		// get forward vector
 		Direction = GetActorRightVector();
@@ -151,24 +152,60 @@ void AMainCharacter::StopRun()
 	GetCharacterMovement()->MaxWalkSpeed = MaxWalkSpeed;	//Change back to WalkSpeed
 }
 
-void AMainCharacter::StartSmash()
+void AMainCharacter::StartAttack()
 {
-	//UE_LOG(LogTemp, Warning, TEXT("Smash!"));
-	OurAttack->SetGenerateOverlapEvents(true);
-	isSmashing = true;	//only needed until we get animation
+	UAnimInstance* TempAnimInstance = GetMesh()->GetAnimInstance();
+	if (TempAnimInstance && CombatMontage)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Playing AttackMontage"))
+		TempAnimInstance->Montage_Play(CombatMontage, 1.5f);
+
+		//Randomize the attack animation
+		int32 RandAttack = FMath::RandRange(0, 2);
+		switch (RandAttack)
+		{
+		case 0:
+			TempAnimInstance->Montage_JumpToSection(FName("Attack_1"), CombatMontage);
+			AttackCollider->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, FName("RightHandSocket"));
+			break;
+		case 1:
+			TempAnimInstance->Montage_JumpToSection(FName("Attack_2"), CombatMontage);
+			AttackCollider->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, FName("RightHandSocket"));
+			break;
+		case 2:
+			TempAnimInstance->Montage_JumpToSection(FName("Kick"), CombatMontage);
+			AttackCollider->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, FName("RightFootSocket"));
+			break;
+		}
+	}
+	if (AttackCollider)	//for some reason this is sometimes a nullptr at start
+	{
+		//AttackCollider->SetGenerateOverlapEvents(true);
+		bIsAttacking = true;
+	}
+	else
+		UE_LOG(LogTemp, Error, TEXT("Attack Collider was nullptr!"))
 }
 
-void AMainCharacter::StopSmash()
+void AMainCharacter::StopAttack()
 {
-	//UE_LOG(LogTemp, Warning, TEXT("Stop Smash!"));
-	OurAttack->SetGenerateOverlapEvents(false);
-	isSmashing = false;	//only needed until we get animation
+	UE_LOG(LogTemp, Warning, TEXT("Stop Attack called"))
+	bIsAttacking = false;
+	AttackCollider->SetGenerateOverlapEvents(false);
+}
+
+void AMainCharacter::AttackFinished()
+{
+	if(bIsAttacking)
+		StartAttack();
+	//else
+		//AttackCollider->SetGenerateOverlapEvents(false);
 }
 
 void AMainCharacter::SwitchInputType()
 {
 	//toggle the input type
-	normalInputType = !normalInputType;
+	bNormalInputType = !bNormalInputType;
 }
 
 // https://docs.unrealengine.com/en-US/API/Runtime/Engine/Components/UPrimitiveComponent/OnComponentBeginOverlap/index.html
@@ -176,7 +213,7 @@ void AMainCharacter::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor*
 	UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex,
 	bool bFromSweep, const FHitResult& SweepResult)
 {
-	//UE_LOG(LogTemp, Warning, TEXT("Enemy Overlaps %s"), *OtherActor->GetName())
+	UE_LOG(LogTemp, Warning, TEXT("Enemy Overlaps %s"), *OtherActor->GetName())
 
 	if (OtherActor->IsA(ADestructableBox::StaticClass()))
 	{
