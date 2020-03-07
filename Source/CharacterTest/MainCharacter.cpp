@@ -134,13 +134,11 @@ void AMainCharacter::MoveRight(float Value)
 void AMainCharacter::StartCrouch()
 {
 	Crouch();		//from CharacterMovement
-	GetMesh()->SetRelativeScale3D(FVector(1.f, 1.f, 0.6f));		//before we have animations
 }
 
 void AMainCharacter::StopCrouch()
 {
 	UnCrouch();		//from CharacterMovement
-	GetMesh()->SetRelativeScale3D(FVector(1.f));				//before we have animations
 }
 
 void AMainCharacter::StartRun()
@@ -155,14 +153,14 @@ void AMainCharacter::StopRun()
 
 void AMainCharacter::StartSmash()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Smash!"));
+	//UE_LOG(LogTemp, Warning, TEXT("Smash!"));
 	OurAttack->SetGenerateOverlapEvents(true);
 	isSmashing = true;	//only needed until we get animation
 }
 
 void AMainCharacter::StopSmash()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Stop Smash!"));
+	//UE_LOG(LogTemp, Warning, TEXT("Stop Smash!"));
 	OurAttack->SetGenerateOverlapEvents(false);
 	isSmashing = false;	//only needed until we get animation
 }
@@ -178,11 +176,11 @@ void AMainCharacter::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor*
 	UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex,
 	bool bFromSweep, const FHitResult& SweepResult)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Enemy Overlaps %s"), *OtherActor->GetName())
+	//UE_LOG(LogTemp, Warning, TEXT("Enemy Overlaps %s"), *OtherActor->GetName())
 
-		if (OtherActor->IsA(ADestructableBox::StaticClass()))
-		{
-			Cast<ADestructableBox>(OtherActor)->ImHit();
-		}
+	if (OtherActor->IsA(ADestructableBox::StaticClass()))
+	{
+		Cast<ADestructableBox>(OtherActor)->ImHit();
+	}
 }
 
