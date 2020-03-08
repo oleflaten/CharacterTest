@@ -161,7 +161,7 @@ void AMainCharacter::StartAttack()
 		TempAnimInstance->Montage_Play(CombatMontage, 1.5f);
 
 		//Randomize the attack animation
-		int32 RandAttack = FMath::RandRange(0, 2);
+		int32 RandAttack = FMath::RandRange(0, 1);
 		switch (RandAttack)
 		{
 		case 0:
@@ -172,15 +172,15 @@ void AMainCharacter::StartAttack()
 			TempAnimInstance->Montage_JumpToSection(FName("Attack_2"), CombatMontage);
 			AttackCollider->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, FName("RightHandSocket"));
 			break;
-		case 2:
-			TempAnimInstance->Montage_JumpToSection(FName("Kick"), CombatMontage);
-			AttackCollider->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, FName("RightFootSocket"));
-			break;
+		//case 2:
+			//TempAnimInstance->Montage_JumpToSection(FName("Kick"), CombatMontage);
+			//AttackCollider->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, FName("RightFootSocket"));
+			//break;
 		}
 	}
 	if (AttackCollider)	//for some reason this is sometimes a nullptr at start
 	{
-		//AttackCollider->SetGenerateOverlapEvents(true);
+		//AttackCollider->SetGenerateOverlapEvents(true);	//Doing this in blueprint
 		bIsAttacking = true;
 	}
 	else
@@ -194,12 +194,12 @@ void AMainCharacter::StopAttack()
 	AttackCollider->SetGenerateOverlapEvents(false);
 }
 
-void AMainCharacter::AttackFinished()
+void AMainCharacter::AttackFinished()	//Blueprint callable
 {
 	if(bIsAttacking)
 		StartAttack();
 	//else
-		//AttackCollider->SetGenerateOverlapEvents(false);
+		//AttackCollider->SetGenerateOverlapEvents(false);	//Doing this in blueprint
 }
 
 void AMainCharacter::SwitchInputType()
