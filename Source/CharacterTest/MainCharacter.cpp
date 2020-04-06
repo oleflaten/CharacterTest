@@ -20,7 +20,7 @@ AMainCharacter::AMainCharacter()
 	// Create a camera boom 
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
-	CameraBoom->TargetArmLength = 500.f;
+	CameraBoom->TargetArmLength = 1500.f;
 	CameraBoom->bEnableCameraLag = true;
 	CameraBoom->CameraLagSpeed = 40.f;
 	CameraBoom->SetRelativeRotation(FRotator(0.f, -35.f, 50.f));	//Does not work correctly - set in editor
@@ -38,8 +38,6 @@ AMainCharacter::AMainCharacter()
 	//OurAttack->SetupAttachment(RootComponent);
 	AttackCollider->SetGenerateOverlapEvents(false);
 	AttackCollider->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, FName("RightHandSocket"));
-
-	AttackCollider->OnComponentBeginOverlap.AddDynamic(this, &AMainCharacter::OnOverlap);
 
 	//Using this for run speed. Have to set it to other than default 600 = walkspeed
 	GetCharacterMovement()->MaxCustomMovementSpeed = 1000.f;
@@ -59,6 +57,8 @@ void AMainCharacter::BeginPlay()
 	//Safer to do in BeginPlay, because it then would get changes made in editor
 	MaxWalkSpeed = GetCharacterMovement()->MaxWalkSpeed;
 	MaxRunSpeed = GetCharacterMovement()->MaxCustomMovementSpeed;	//if doing this we don't need UProperties on these variables
+
+	AttackCollider->OnComponentBeginOverlap.AddDynamic(this, &AMainCharacter::OnOverlap);
 
 	//Just debugging strange behaviour
 	if (AttackCollider->GetGenerateOverlapEvents() == true)
