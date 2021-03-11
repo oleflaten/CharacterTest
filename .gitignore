@@ -78,3 +78,5 @@ Plugins/*/Intermediate/*
 DerivedDataCache/*
 Config/.DS_Store
 
+# Raider JetBrains - stuff
+.idea/*

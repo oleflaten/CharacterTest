@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// OEF 2021
 
 
 #include "MainCharacter.h"
@@ -13,34 +13,34 @@
 // Sets default values
 AMainCharacter::AMainCharacter()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	// Create a camera boom 
+	// Create a camera boom - the placement/position of the 
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
-	CameraBoom->TargetArmLength = 500.f;
-	CameraBoom->bEnableCameraLag = true;
-	CameraBoom->CameraLagSpeed = 40.f;
-	CameraBoom->SetRelativeRotation(FRotator(0.f, -35.f, 50.f));	//Does not work correctly - set in editor
-	CameraBoom->bUsePawnControlRotation = false;	// Ignore controller rotations
-	CameraBoom->bInheritYaw = false;				// Ignore Yaw rotations
-	CameraBoom->bDoCollisionTest = false;			// Should not zoom closer to player when colliding
+	CameraBoom->TargetArmLength = 500.f;	//the distance from the camera down to the player
+	CameraBoom->bEnableCameraLag = true;	//just to let the camera lag and not be that fixed at the end of the boom
+	CameraBoom->CameraLagSpeed = 40.f;		//how much lag
+	CameraBoom->SetRelativeRotation(FRotator(-40.f, 80.f, 0.f)); //X = pitch = angle down on player, Y = yaw = angle around the player
+	CameraBoom->bInheritYaw = false;				// Ignore Yaw rotations - since we want a fixed camera
+	CameraBoom->bDoCollisionTest = false;			// Should not zoom closer to player when colliding  - since we want a fixed camera
 
-	// Create a follow camera
+	// Create a follow camera - the actual camera the game is viewed through
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
-	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
-	FollowCamera->SetRelativeRotation(FRotator(0.f, 15.f, 0.f));	//Does not work correctly - set in editor
+	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);	//put it at the end of the boom
 
+	//Simple melee attack box - this should eventually be put on a socket on the skeleton of the player to follow the attack-animation
 	OurAttack = CreateDefaultSubobject<UBoxComponent>(TEXT("PlayerAttack"));
 	OurAttack->InitBoxExtent(FVector(30.f, 30.f, 30.f));
 	OurAttack->SetupAttachment(RootComponent);
-	OurAttack->SetGenerateOverlapEvents(false);
-	OurAttack->SetRelativeLocation(AttackPlacement);
+	OurAttack->SetGenerateOverlapEvents(false);			//do not make overlap events when game starts
+	OurAttack->SetRelativeLocation(AttackPlacement);	//placement relative to the root of this pawn
 
+	//Check if we hit anything when we attack
 	OurAttack->OnComponentBeginOverlap.AddDynamic(this, &AMainCharacter::OnOverlap);
 
 	//Using this for run speed. Have to set it to other than default 600 = walkspeed
+	//MovementComponent does not have a dedicated RunSpeed variable
 	GetCharacterMovement()->MaxCustomMovementSpeed = 1000.f;
 
 	GetCharacterMovement()->GetNavAgentPropertiesRef().bCanCrouch = true;
@@ -52,7 +52,7 @@ void AMainCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	GetCharacterMovement()->GetNavAgentPropertiesRef().bCanCrouch = true;	//has to be set to get crouch to work
+	// GetCharacterMovement()->GetNavAgentPropertiesRef().bCanCrouch = true;	//has to be set to get crouch to work
 
 	//Fetching the CharacterMovement so it stays in sync with what is set there
 	//Safer to do in BeginPlay, because it then would get changes made in editor
@@ -65,7 +65,8 @@ void AMainCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	//Help functionallity for smashing - only needed because we have no attack-animation
+	//Help-functionallity for smashing - only needed because we have no attack-animation
+	//A stand still hitbox does not trigger anything.
 	if (isSmashing)
 	{
 		//Move the hitbox to trigger the overlap event
