@@ -2,6 +2,8 @@
 
 
 #include "MainAnimInstance.h"
+
+#include "MainCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 void UMainAnimInstance::NativeInitializeAnimation()
@@ -27,5 +29,6 @@ void UMainAnimInstance::UpdateAnimationProperties()
 
 		bIsInAir = MyPawn->GetMovementComponent()->IsFalling();
 		bIsCrouching = MyPawn->GetMovementComponent()->IsCrouching();
+		bIsAttacking = Cast<AMainCharacter>(MyPawn)->bIsAttacking;
 	}
 }

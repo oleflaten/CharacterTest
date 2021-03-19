@@ -29,7 +29,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void AttackFinished();
 
-
 	// Camera boom positioning the camera behind the character
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
 	class USpringArmComponent* CameraBoom;
@@ -54,9 +53,9 @@ public:
 	bool bIsAttacking{ false };
 
 	// The Animation Montage that contains our attack animations
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Anims")
-	class UAnimMontage* CombatMontage{ nullptr };
-
+	// UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Anims")
+	// class UAnimMontage* CombatMontage{ nullptr };
+							
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -78,4 +77,6 @@ private:
 	void SwitchInputType();
 
 	bool bNormalInputType{ true };		//Used to switch between WASD input behavior
+
+	bool bAttackFinished{false};		//Used to make the whole attack animation run
 };

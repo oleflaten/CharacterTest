@@ -61,11 +61,11 @@ void AMainCharacter::BeginPlay()
 	MaxRunSpeed = GetCharacterMovement()->MaxCustomMovementSpeed;	//if doing this we don't need UProperties on these variables
 
 	//Just debugging strange behaviour
-	if (AttackCollider->GetGenerateOverlapEvents() == true)
-	{
-		AttackCollider->SetGenerateOverlapEvents(false);
-		UE_LOG(LogTemp, Error, TEXT("Attack Collider GenerateOverlapEvents was set to true !"))
-	}
+	// if (AttackCollider->GetGenerateOverlapEvents() == true)
+	// {
+		// AttackCollider->SetGenerateOverlapEvents(false);
+		// UE_LOG(LogTemp, Error, TEXT("Attack Collider GenerateOverlapEvents was set to true !"))
+	// }
 }
 
 // Called every frame
@@ -154,53 +154,35 @@ void AMainCharacter::StopRun()
 
 void AMainCharacter::StartAttack()
 {
-	UAnimInstance* TempAnimInstance = GetMesh()->GetAnimInstance();
-	if (TempAnimInstance && CombatMontage)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Playing AttackMontage"))
-		TempAnimInstance->Montage_Play(CombatMontage, 1.5f);
+	UE_LOG(LogTemp, Warning, TEXT("Start Attack called"))
 
-		//Randomize the attack animation
-		int32 RandAttack = FMath::RandRange(0, 2);
-		switch (RandAttack)
-		{
-		case 0:
-			TempAnimInstance->Montage_JumpToSection(FName("Attack_1"), CombatMontage);
-			AttackCollider->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, FName("RightHandSocket"));
-			break;
-		case 1:
-			TempAnimInstance->Montage_JumpToSection(FName("Attack_2"), CombatMontage);
-			AttackCollider->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, FName("RightHandSocket"));
-			break;
-		case 2:
-			TempAnimInstance->Montage_JumpToSection(FName("Kick"), CombatMontage);
-			AttackCollider->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, FName("RightFootSocket"));
-			break;
-		}
-	}
-	if (AttackCollider)	//for some reason this is sometimes a nullptr at start
-	{
-		//AttackCollider->SetGenerateOverlapEvents(true);
-		bIsAttacking = true;
-	}
-	else
-		UE_LOG(LogTemp, Error, TEXT("Attack Collider was nullptr!"))
+	//this is set in Blueprints by Anim Notifiers
+	// if (AttackCollider)	//for some reason this is sometimes a nullptr at start
+		// AttackCollider->SetGenerateOverlapEvents(true);
+	bIsAttacking = true;	
 }
 
 void AMainCharacter::StopAttack()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Stop Attack called"))
-	bIsAttacking = false;
-	AttackCollider->SetGenerateOverlapEvents(false);
+	// bIsAttacking = false;
+	bAttackFinished = true;		//wait for animation to fínish
+	
+	// this is set in Blueprints by Anim Notifiers
+	// AttackCollider->SetGenerateOverlapEvents(false);
 }
 
 void AMainCharacter::AttackFinished()
 {
-	if(bIsAttacking)
+	if(!bAttackFinished)
 		StartAttack();
-	//else
-		//AttackCollider->SetGenerateOverlapEvents(false);
-}
+	else
+	{
+		bAttackFinished = false;
+		bIsAttacking = false;
+		UE_LOG(LogTemp, Warning, TEXT("Attack Finished called"))
+	}
+}	
 
 void AMainCharacter::SwitchInputType()
 {
