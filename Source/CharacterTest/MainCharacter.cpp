@@ -7,9 +7,10 @@
 #include "Components/InputComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/SkeletalMeshComponent.h"
-#include "Components/BoxComponent.h"
+// #include "Components/BoxComponent.h"
 #include "DestructableBox.h"
-#include "Animation/AnimInstance.h"
+#include "MeleeWeapon.h"
+// #include "Animation/AnimInstance.h"
 
 // Sets default values
 AMainCharacter::AMainCharacter()
@@ -33,18 +34,19 @@ AMainCharacter::AMainCharacter()
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	FollowCamera->SetRelativeRotation(FRotator(0.f, 15.f, 0.f));	//Does not work correctly - set in editor
 
-	AttackCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("AttackBox"));
-	AttackCollider->InitBoxExtent(FVector(15.f, 15.f, 15.f));
-	//OurAttack->SetupAttachment(RootComponent);
-	AttackCollider->SetGenerateOverlapEvents(false);
-	AttackCollider->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, FName("RightHandSocket"));
-
-	AttackCollider->OnComponentBeginOverlap.AddDynamic(this, &AMainCharacter::OnOverlap);
+	// Attack collisions is done in Weapon now
+	/* AttackCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("AttackBox"));
+	// AttackCollider->InitBoxExtent(FVector(15.f, 15.f, 15.f));
+	// //OurAttack->SetupAttachment(RootComponent);
+	// AttackCollider->SetGenerateOverlapEvents(false);
+	// AttackCollider->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, FName("RightHandSocket"));
+	//
+	// AttackCollider->OnComponentBeginOverlap.AddDynamic(this, &AMainCharacter::OnOverlap);*/
 
 	//Using this for run speed. Have to set it to other than default 600 = walkspeed
 	GetCharacterMovement()->MaxCustomMovementSpeed = 1000.f;
 
-	GetCharacterMovement()->GetNavAgentPropertiesRef().bCanCrouch = true;
+	//How high the character is when Crouching
 	GetCharacterMovement()->CrouchedHalfHeight = 60.f;
 }
 
@@ -60,12 +62,9 @@ void AMainCharacter::BeginPlay()
 	MaxWalkSpeed = GetCharacterMovement()->MaxWalkSpeed;
 	MaxRunSpeed = GetCharacterMovement()->MaxCustomMovementSpeed;	//if doing this we don't need UProperties on these variables
 
-	//Just debugging strange behaviour
-	// if (AttackCollider->GetGenerateOverlapEvents() == true)
-	// {
-		// AttackCollider->SetGenerateOverlapEvents(false);
-		// UE_LOG(LogTemp, Error, TEXT("Attack Collider GenerateOverlapEvents was set to true !"))
-	// }
+	MyWeapon = GetWorld()->SpawnActor<AMeleeWeapon>(WeaponType);
+	MyWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("RightHandSocket"));
+	
 }
 
 // Called every frame
@@ -189,17 +188,3 @@ void AMainCharacter::SwitchInputType()
 	//toggle the input type
 	bNormalInputType = !bNormalInputType;
 }
-
-// https://docs.unrealengine.com/en-US/API/Runtime/Engine/Components/UPrimitiveComponent/OnComponentBeginOverlap/index.html
-void AMainCharacter::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-	UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex,
-	bool bFromSweep, const FHitResult& SweepResult)
-{
-	UE_LOG(LogTemp, Warning, TEXT("Enemy Overlaps %s"), *OtherActor->GetName())
-
-	if (OtherActor->IsA(ADestructableBox::StaticClass()))
-	{
-		Cast<ADestructableBox>(OtherActor)->ImHit();
-	}
-}
-

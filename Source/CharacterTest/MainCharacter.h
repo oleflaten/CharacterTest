@@ -21,40 +21,40 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	UFUNCTION()
-	void OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-		UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex,
-		bool bFromSweep, const FHitResult& SweepResult);
+	// UFUNCTION()  // This is done in the weapon now
+	// void OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	// 	UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex,
+	// 	bool bFromSweep, const FHitResult& SweepResult);
 
 	UFUNCTION(BlueprintCallable)
 	void AttackFinished();
 
 	// Camera boom positioning the camera behind the character
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
-	class USpringArmComponent* CameraBoom;
+	class USpringArmComponent* CameraBoom{nullptr};
 
 	// Camera
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
-	class UCameraComponent* FollowCamera;
+	class UCameraComponent* FollowCamera{nullptr};
 
-	// Attack collider
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Colliders")
-	class UBoxComponent* AttackCollider;
+	// Attack collider - we use Weapon now
+	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Colliders")
+	// class UBoxComponent* AttackCollider;
+
+	// Melee Weapon
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+	TSubclassOf<class AMeleeWeapon> WeaponType;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class AMeleeWeapon *MyWeapon{nullptr};
 
 	// Using MaxWalkSpeed and CustomMovement from CharacterMovement to set these
-	// So no need for UPROPERTY now.
-	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float MaxWalkSpeed{ 0.f };
-	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float MaxRunSpeed{ 1000.f };
 
 	// Bool set to whether we attack or not
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Anims")
 	bool bIsAttacking{ false };
-
-	// The Animation Montage that contains our attack animations
-	// UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Anims")
-	// class UAnimMontage* CombatMontage{ nullptr };
 							
 protected:
 	// Called when the game starts or when spawned
