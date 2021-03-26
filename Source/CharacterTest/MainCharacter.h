@@ -21,13 +21,11 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	// UFUNCTION()  // This is done in the weapon now
-	// void OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-	// 	UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex,
-	// 	bool bFromSweep, const FHitResult& SweepResult);
-
 	UFUNCTION(BlueprintCallable)
 	void AttackFinished();
+
+	UFUNCTION(BlueprintCallable)
+	void SetAttackCollider(bool AttackColliderOn);
 
 	// Camera boom positioning the camera behind the character
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
@@ -37,16 +35,13 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
 	class UCameraComponent* FollowCamera{nullptr};
 
-	// Attack collider - we use Weapon now
-	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Colliders")
-	// class UBoxComponent* AttackCollider;
-
 	// Melee Weapon
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 	TSubclassOf<class AMeleeWeapon> WeaponType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class AMeleeWeapon *MyWeapon{nullptr};
+
 
 	// Using MaxWalkSpeed and CustomMovement from CharacterMovement to set these
 	float MaxWalkSpeed{ 0.f };
@@ -70,7 +65,7 @@ private:
 
 	void StartRun();
 	void StopRun();
-
+	
 	void StartAttack();
 	void StopAttack();
 

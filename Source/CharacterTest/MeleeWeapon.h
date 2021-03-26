@@ -21,7 +21,7 @@ public:
         bool bFromSweep, const FHitResult& SweepResult);
 
 	// Attack collider = the dangerous part of the weapon
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Setup")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class USphereComponent* AttackCollider{nullptr};
 
 protected:
@@ -31,8 +31,11 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	class USceneComponent *RootBase{nullptr};
 
-	UPROPERTY(EditAnywhere, Category = "Setup")
+	UPROPERTY(EditAnywhere)
 	class UStaticMeshComponent *WeaponMesh{nullptr};
+
+	UPROPERTY(EditAnywhere, Category = "Setup")
+	float Damage{10.f};
 	
 public:	
 	// Called every frame

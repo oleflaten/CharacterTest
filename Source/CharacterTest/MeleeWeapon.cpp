@@ -17,20 +17,21 @@ AMeleeWeapon::AMeleeWeapon()
 
 	WeaponMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("WeaponMesh"));
 	WeaponMesh->SetupAttachment(RootBase);
+	WeaponMesh->SetGenerateOverlapEvents(false);	//else this also might trigger overlap events
 
 	AttackCollider = CreateDefaultSubobject<USphereComponent>(TEXT("AttackSphere"));
-	AttackCollider->InitSphereRadius(30.f);
-	AttackCollider->SetGenerateOverlapEvents(false);
+	AttackCollider->InitSphereRadius(15.f);
 	AttackCollider->SetupAttachment(RootBase);
-	
-	AttackCollider->OnComponentBeginOverlap.AddDynamic(this, &AMeleeWeapon::OnOverlap);
+	AttackCollider->SetGenerateOverlapEvents(true);
 }
 
 // Called when the game starts or when spawned
 void AMeleeWeapon::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	//Sometimes setting OnComponentBeginOverlap in constructor does not work inside the editor...	
+	AttackCollider->OnComponentBeginOverlap.AddDynamic(this, &AMeleeWeapon::OnOverlap);
 }
 
 // Called every frame
@@ -44,12 +45,16 @@ void AMeleeWeapon::Tick(float DeltaTime)
 void AMeleeWeapon::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex,
     bool bFromSweep, const FHitResult& SweepResult)
-{
+{	
 	UE_LOG(LogTemp, Warning, TEXT("Enemy Overlaps %s"), *OtherActor->GetName())
 
 	if (OtherActor->IsA(ADestructableBox::StaticClass()))
 	{
-		Cast<ADestructableBox>(OtherActor)->ImHit();
+		//Set up some variables to apply damage:
+		FHitResult Hit;
+		FPointDamageEvent DamageEvent(Damage, Hit, FVector::ForwardVector, nullptr);
+
+		Cast<ADestructableBox>(OtherActor)->TakeDamage(Damage, DamageEvent, GetOwner()->GetInstigatorController(), this);	
 	}
 }
 

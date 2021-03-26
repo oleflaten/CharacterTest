@@ -7,7 +7,7 @@
 #include "Components/InputComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/SkeletalMeshComponent.h"
-// #include "Components/BoxComponent.h"
+#include "Components/SphereComponent.h"
 #include "DestructableBox.h"
 #include "MeleeWeapon.h"
 // #include "Animation/AnimInstance.h"
@@ -34,15 +34,6 @@ AMainCharacter::AMainCharacter()
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	FollowCamera->SetRelativeRotation(FRotator(0.f, 15.f, 0.f));	//Does not work correctly - set in editor
 
-	// Attack collisions is done in Weapon now
-	/* AttackCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("AttackBox"));
-	// AttackCollider->InitBoxExtent(FVector(15.f, 15.f, 15.f));
-	// //OurAttack->SetupAttachment(RootComponent);
-	// AttackCollider->SetGenerateOverlapEvents(false);
-	// AttackCollider->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, FName("RightHandSocket"));
-	//
-	// AttackCollider->OnComponentBeginOverlap.AddDynamic(this, &AMainCharacter::OnOverlap);*/
-
 	//Using this for run speed. Have to set it to other than default 600 = walkspeed
 	GetCharacterMovement()->MaxCustomMovementSpeed = 1000.f;
 
@@ -65,6 +56,8 @@ void AMainCharacter::BeginPlay()
 	MyWeapon = GetWorld()->SpawnActor<AMeleeWeapon>(WeaponType);
 	MyWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("RightHandSocket"));
 	
+	//For DealDamage - you can get who hurt you
+	MyWeapon->SetOwner(this);
 }
 
 // Called every frame
@@ -155,20 +148,13 @@ void AMainCharacter::StartAttack()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Start Attack called"))
 
-	//this is set in Blueprints by Anim Notifiers
-	// if (AttackCollider)	//for some reason this is sometimes a nullptr at start
-		// AttackCollider->SetGenerateOverlapEvents(true);
-	bIsAttacking = true;	
+	bIsAttacking = true;
 }
 
 void AMainCharacter::StopAttack()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Stop Attack called"))
-	// bIsAttacking = false;
 	bAttackFinished = true;		//wait for animation to fínish
-	
-	// this is set in Blueprints by Anim Notifiers
-	// AttackCollider->SetGenerateOverlapEvents(false);
 }
 
 void AMainCharacter::AttackFinished()
@@ -181,7 +167,12 @@ void AMainCharacter::AttackFinished()
 		bIsAttacking = false;
 		UE_LOG(LogTemp, Warning, TEXT("Attack Finished called"))
 	}
-}	
+}
+
+void AMainCharacter::SetAttackCollider(bool AttackColliderOn)
+{
+	MyWeapon->AttackCollider->SetGenerateOverlapEvents(AttackColliderOn);
+}
 
 void AMainCharacter::SwitchInputType()
 {

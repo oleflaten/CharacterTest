@@ -15,16 +15,13 @@ public:
 	// Sets default values for this actor's properties
 	ADestructableBox();
 
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
 	void ImHit();
 
 	UPROPERTY(VisibleAnywhere)
-	class UBoxComponent* OurCollider;
+	class UBoxComponent* OurCollider{nullptr};
 
 	UPROPERTY(VisibleAnywhere)
-	UStaticMeshComponent* OurVisibleMesh;
+	UStaticMeshComponent* OurVisibleMesh{nullptr};
 
 	// What particle system to use when destroyed
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
@@ -34,7 +31,11 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Gameplay")
 	class USoundBase* CrashSound{nullptr};
 
-
+	UPROPERTY(EditAnywhere, Category = "Gameplay")
+	float Health{40.f};
+	
+	float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+	
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
