@@ -5,6 +5,9 @@
 .vscode/
 *.code-workspace
 
+#Rider
+.idea/
+
 # Compiled Object files
 *.slo
 *.lo
@@ -79,3 +82,4 @@ DerivedDataCache/*
 Config/.DS_Store
 
 .DS_Store
+
