@@ -56,6 +56,28 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Anims")
 	class UAnimMontage* CombatMontage{ nullptr };
 
+
+	//For showing Enemy Health bar
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Enemy")
+	class AEnemy* EnemyIAttack{nullptr};
+
+	void SetEnemy(AEnemy* EnemyIn);
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Enemy")
+	bool bHasEnemyTarget{false};
+
+	class AMainPlayerController* MyPlayerController{nullptr};
+	
+	//Set the Enemy Health Bar Widget - move all this to MainPlayerController!!
+	//Have to include "UMG" module in Build.cs to use UUserWidget
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy")
+	TSubclassOf<class UUserWidget> EnemyWidget;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy")
+	UUserWidget* EnemyHealtBar{nullptr};
+
+	FVector EnemyPosition;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

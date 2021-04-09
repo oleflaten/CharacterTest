@@ -8,4 +8,5 @@ Echo deleting folders
 @RD /S /Q ".vs"
 @RD /S /Q ".idea"
 DEL "*.sln" /s /f /q
+DEL "*.sln.DotSettings.user" /s /f /q
 

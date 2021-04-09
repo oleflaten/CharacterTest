@@ -1,5 +1,6 @@
-# Visual Studio 2015 user specific files
+# Visual Studio user specific files
 .vs/
+*.sln.DotSettings.user
 
 # VS Code
 .vscode/
@@ -82,4 +83,5 @@ DerivedDataCache/*
 Config/.DS_Store
 
 .DS_Store
+
 

@@ -15,11 +15,13 @@ public:
 	// Sets default values for this character's properties
 	AEnemy();
 
+	//A sphere that if the Player enters, triggers the NPC to follow Player
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = AI)
-		class USphereComponent* PlayerSensingSphere{nullptr};
+	class USphereComponent* PlayerSensingSphere{nullptr};
 
+	//The Controller for the NCP - similar to the PlayerController
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = AI)
-		class AAIController* AIController{ nullptr };
+	class AAIController* AIController{ nullptr };
 
 	UFUNCTION()
 	void OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
@@ -30,7 +32,12 @@ public:
 	void OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 			UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex);
 
+	//Function that actually moves the NPC
+	//For now the target to move towards is the MainCharacter - Chase mode
 	void MoveToTarget(class AMainCharacter* MainCharacter);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = AI)
+	float Health{100.f};
 
 protected:
 	// Called when the game starts or when spawned

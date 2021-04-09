@@ -2,8 +2,8 @@
 
 #include "Enemy.h"
 #include "Components/SphereComponent.h"
-#include "AIController.h"
-#include "MainCharacter.h"
+#include "AIController.h"	//Unreals AIController class
+#include "MainCharacter.h"	//Since we move towards the Player
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -25,6 +25,7 @@ void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
 
+	//Characters in level will automatically be given an AIController if not given a PlayerController
 	AIController = Cast<AAIController>(GetController());
 
 	//Had to put these here and not in the constructor, to get them to work
@@ -50,7 +51,10 @@ void AEnemy::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherAc
 {
 	AMainCharacter* Player = Cast<AMainCharacter>(OtherActor);
 	if (Player)
+	{
+		Player->SetEnemy(this);
 		MoveToTarget(Player);
+	}
 }
 
 void AEnemy::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex)
@@ -58,6 +62,7 @@ void AEnemy::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* Othe
 	AMainCharacter* Player = Cast<AMainCharacter>(OtherActor);
 	if (AIController && Player)
 	{
+		Player->SetEnemy(nullptr);
 		UE_LOG(LogTemp, Warning, TEXT("Player Ends Overlap"));
 		AIController->StopMovement();
 	}
@@ -65,29 +70,29 @@ void AEnemy::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* Othe
 }
 void AEnemy::MoveToTarget(AMainCharacter* MainCharacter)
 {
-	//have to include "AIModule" in Project Build.cs file for this to work
+	//have to include "AIModule" in ProjectNameBuild.cs file for this to work
 	if (AIController)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Player Overlaps"));
 
 		//https://docs.unrealengine.com/en-US/API/Runtime/AIModule/FAIMoveRequest/index.html
 		FAIMoveRequest AIMoverequest;
-		AIMoverequest.SetGoalActor(MainCharacter);
-		AIMoverequest.SetAcceptanceRadius(25.f);
+		AIMoverequest.SetGoalActor(MainCharacter);	//What to move towards
+		AIMoverequest.SetAcceptanceRadius(25.f);	//How close before stop
 
 		//https://docs.unrealengine.com/en-US/API/Runtime/Engine/AI/Navigation/FNavPathSharedPtr/index.html
-		FNavPathSharedPtr NavPath;
+		FNavPathSharedPtr NavPath;	//Will contain all location nodes for the path
 
 		AIController->MoveTo(AIMoverequest, &NavPath);
 
+		// **************** this just shows us the path *********************
 		//auto guesses the type for us
 		auto PathPoints = NavPath->GetPathPoints();
 
-		//this just shows us the path
 		for (auto Point : PathPoints)
 		{
 			FVector Location = Point.Location;
-			UKismetSystemLibrary::DrawDebugSphere(this, Location, 25.f, 8, FLinearColor::Green, 10, 0.5f);
+			UKismetSystemLibrary::DrawDebugSphere(this, Location, 25.f, 8, FLinearColor::Green, 3, 0.5f);
 		}
 	}
 }
