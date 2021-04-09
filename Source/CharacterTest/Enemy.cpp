@@ -55,7 +55,7 @@ void AEnemy::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherAc
 		Player->SetEnemy(this);
 
 		//Easy way shown in GameDev course video 193:
-		//AIController->MoveToActor(MainCharacter, 100);
+		// AIController->MoveToActor(Player, 100);
 
 		//or More elaborate way, but gives us more insight:
 		MoveToTarget(Player);
