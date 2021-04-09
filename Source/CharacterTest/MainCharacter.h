@@ -57,8 +57,9 @@ public:
 	class UAnimMontage* CombatMontage{ nullptr };
 
 
+	/****************************** HUD stuff *******************************************/
 	//For showing Enemy Health bar
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Enemy")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy")
 	class AEnemy* EnemyIAttack{nullptr};
 
 	void SetEnemy(AEnemy* EnemyIn);
@@ -72,8 +73,9 @@ public:
 	//Have to include "UMG" module in Build.cs to use UUserWidget
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy")
 	TSubclassOf<class UUserWidget> EnemyWidget;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy")
+
+	//GameDev course Video 206 does this just when needed in the cpp file
+	//we want to use it several places so we want a pointer to it
 	UUserWidget* EnemyHealtBar{nullptr};
 
 	FVector EnemyPosition;

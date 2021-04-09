@@ -53,6 +53,11 @@ void AEnemy::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherAc
 	if (Player)
 	{
 		Player->SetEnemy(this);
+
+		//Easy way shown in GameDev course video 193:
+		//AIController->MoveToActor(MainCharacter, 100);
+
+		//or More elaborate way, but gives us more insight:
 		MoveToTarget(Player);
 	}
 }
@@ -79,16 +84,16 @@ void AEnemy::MoveToTarget(AMainCharacter* MainCharacter)
 		FAIMoveRequest AIMoverequest;
 		AIMoverequest.SetGoalActor(MainCharacter);	//What to move towards
 		AIMoverequest.SetAcceptanceRadius(25.f);	//How close before stop
-
+	
 		//https://docs.unrealengine.com/en-US/API/Runtime/Engine/AI/Navigation/FNavPathSharedPtr/index.html
 		FNavPathSharedPtr NavPath;	//Will contain all location nodes for the path
-
+	
 		AIController->MoveTo(AIMoverequest, &NavPath);
-
+	
 		// **************** this just shows us the path *********************
 		//auto guesses the type for us
 		auto PathPoints = NavPath->GetPathPoints();
-
+	
 		for (auto Point : PathPoints)
 		{
 			FVector Location = Point.Location;

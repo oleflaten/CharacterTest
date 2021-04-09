@@ -67,13 +67,8 @@ void AMainCharacter::BeginPlay()
 
 	AttackCollider->OnComponentBeginOverlap.AddDynamic(this, &AMainCharacter::OnOverlap);
 
-	//Just debugging strange behaviour
-	if (AttackCollider->GetGenerateOverlapEvents() == true)
-	{
-		AttackCollider->SetGenerateOverlapEvents(false);
-		UE_LOG(LogTemp, Error, TEXT("Attack Collider GenerateOverlapEvents was set to true !"))
-	}
 
+	/****************************** HUD stuff *******************************************/
 	//Set up and add Enemy Health Bar - move to MainPlayerController
 	if(EnemyWidget)
 	{
@@ -96,22 +91,29 @@ void AMainCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	//UE_LOG(LogTemp, Warning, TEXT("isAttacking %s"), (AttackCollider->GetGenerateOverlapEvents() ? TEXT("True") : TEXT("False")))
 
-	if(EnemyIAttack)
-		EnemyPosition = EnemyIAttack->GetActorLocation();
-	
+
+	/****************************** HUD stuff *******************************************/
 	if(EnemyHealtBar)
 	{
+		//Get position of Enemy
+		if(EnemyIAttack)
+			EnemyPosition = EnemyIAttack->GetActorLocation();
+
+		//Get the 2D position of the enemy in the world 
 		FVector2D PositionInViewport;
 		MyPlayerController->ProjectWorldLocationToScreen(EnemyPosition, PositionInViewport);
 
-		FVector2D SizeOfEnemyHUD{250, 50};
+		//Have these variables in the editor to easy tweaking!
+		FVector2D SizeOfEnemyHUD{250, 25};
 		EnemyHealtBar->SetDesiredSizeInViewport(SizeOfEnemyHUD);
-		PositionInViewport.X -= 70;
-		PositionInViewport.Y -= 70;
+
+		//Position the HUD center and over the head of Enemy
+		PositionInViewport.X -= 50;
+		PositionInViewport.Y -= 90;
 		EnemyHealtBar->SetPositionInViewport(PositionInViewport);
 	}
 }
-
+/****************************** HUD stuff *******************************************/
  void AMainCharacter::SetEnemy(AEnemy* EnemyIn)
 {
  	EnemyIAttack = EnemyIn;
