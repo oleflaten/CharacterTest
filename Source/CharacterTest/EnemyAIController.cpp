@@ -3,11 +3,12 @@
 #include "EnemyAIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Perception/AIPerceptionComponent.h"
 
 void AEnemyAIController::BeginPlay()
 {
 	Super::BeginPlay();
-
+	
 	PlayerPawn = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
 	
 	if(EnemyAIBehavior) //this will work, since I set the pointer to be nullptr, if not set.

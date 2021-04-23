@@ -51,24 +51,24 @@ void AEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 void AEnemy::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	AMainCharacter* Player = Cast<AMainCharacter>(OtherActor);
-	if (Player)
-	{
-		AIController->PlayerSpotted(true);
-		
-		//Easy way shown in GameDev course video 193:
- 		// AIController->MoveToActor(Player, 100);
-	}
+	// AMainCharacter* Player = Cast<AMainCharacter>(OtherActor);
+	// if (Player)
+	// {
+	// 	AIController->PlayerSpotted(true);
+	// 	
+	// 	//Easy way shown in GameDev course video 193:
+ // 		// AIController->MoveToActor(Player, 100);
+	// }
 }
 
 void AEnemy::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex)
 {
-	AMainCharacter* Player = Cast<AMainCharacter>(OtherActor);
-	if (AIController && Player)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Player Ends Overlap"));
-		AIController->PlayerSpotted(false);
-	}
+	// AMainCharacter* Player = Cast<AMainCharacter>(OtherActor);
+	// if (AIController && Player)
+	// {
+	// 	UE_LOG(LogTemp, Warning, TEXT("Player Ends Overlap"));
+	// 	AIController->PlayerSpotted(false);
+	// }
 }
 
 

@@ -27,5 +27,8 @@ public:
 	void PlayerSpotted(bool IsSpotted);
 
 	virtual void Tick(float DeltaTime) override;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = AI)
+	class UAIPerceptionComponent* OurPercetionComp{nullptr};
 	
 };

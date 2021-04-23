@@ -15,6 +15,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "MainPlayerController.h"
 
+#include "Perception/AISense_Hearing.h"		//AI Perception
+
 // Sets default values
 AMainCharacter::AMainCharacter()
 {
@@ -155,6 +157,9 @@ void AMainCharacter::StopRun()
 
 void AMainCharacter::StartAttack()
 {
+	//AI Perception Sensing - send noise event
+	UAISense_Hearing::ReportNoiseEvent(GetWorld(), GetActorLocation(), 1, this , 300, TEXT("Noise") );
+	
 	UAnimInstance* TempAnimInstance = GetMesh()->GetAnimInstance();
 	if (TempAnimInstance && CombatMontage)
 	{
