@@ -55,7 +55,6 @@ void AMainCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	
 	MyPlayerController =  Cast<AMainPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
 
 	GetCharacterMovement()->GetNavAgentPropertiesRef().bCanCrouch = true;	//has to be set to get crouch to work
@@ -67,22 +66,6 @@ void AMainCharacter::BeginPlay()
 
 	AttackCollider->OnComponentBeginOverlap.AddDynamic(this, &AMainCharacter::OnOverlap);
 
-
-	/****************************** HUD stuff *******************************************/
-	//Set up and add Enemy Health Bar - move to MainPlayerController
-	if(EnemyWidget)
-	{
-		EnemyHealtBar = CreateWidget<UUserWidget>(UGameplayStatics::GetPlayerController(GetWorld(), 0), EnemyWidget);
-		if(EnemyHealtBar)
-		{
-			EnemyHealtBar->AddToViewport();
-			EnemyHealtBar->SetVisibility(ESlateVisibility::Hidden);
-		}
-		// FVector2D HUDAlignment{0.f, 0.f};	//Don't see any difference by this - our camera is fixed 
-		// EnemyHealtBar->SetAlignmentInViewport(HUDAlignment);
-		}
-	else
-			UE_LOG(LogTemp, Error, TEXT("EnemyHealthBar not set"))
 }
 
 // Called every frame
@@ -91,42 +74,6 @@ void AMainCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	//UE_LOG(LogTemp, Warning, TEXT("isAttacking %s"), (AttackCollider->GetGenerateOverlapEvents() ? TEXT("True") : TEXT("False")))
 
-
-	/****************************** HUD stuff *******************************************/
-	if(EnemyHealtBar)
-	{
-		//Get position of Enemy
-		if(EnemyIAttack)
-			EnemyPosition = EnemyIAttack->GetActorLocation();
-
-		//Get the 2D position of the enemy in the world 
-		FVector2D PositionInViewport;
-		MyPlayerController->ProjectWorldLocationToScreen(EnemyPosition, PositionInViewport);
-
-		//Have these variables in the editor to easy tweaking!
-		FVector2D SizeOfEnemyHUD{250, 25};
-		EnemyHealtBar->SetDesiredSizeInViewport(SizeOfEnemyHUD);
-
-		//Position the HUD center and over the head of Enemy
-		PositionInViewport.X -= 50;
-		PositionInViewport.Y -= 90;
-		EnemyHealtBar->SetPositionInViewport(PositionInViewport);
-	}
-}
-/****************************** HUD stuff *******************************************/
- void AMainCharacter::SetEnemy(AEnemy* EnemyIn)
-{
- 	EnemyIAttack = EnemyIn;
- 	if(EnemyIAttack)
- 	{
- 		EnemyHealtBar->SetVisibility(ESlateVisibility::Visible);
-		bHasEnemyTarget = true;
- 	}
- 	else
- 	{
- 		EnemyHealtBar->SetVisibility(ESlateVisibility::Hidden);
-		bHasEnemyTarget = false;
- 	}
 }
 
 // Called to bind functionality to input

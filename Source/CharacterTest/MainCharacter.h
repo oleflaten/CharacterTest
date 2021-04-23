@@ -56,30 +56,6 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Anims")
 	class UAnimMontage* CombatMontage{ nullptr };
 
-
-	/****************************** HUD stuff *******************************************/
-	//For showing Enemy Health bar
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy")
-	class AEnemy* EnemyIAttack{nullptr};
-
-	void SetEnemy(AEnemy* EnemyIn);
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Enemy")
-	bool bHasEnemyTarget{false};
-
-	class AMainPlayerController* MyPlayerController{nullptr};
-	
-	//Set the Enemy Health Bar Widget - move all this to MainPlayerController!!
-	//Have to include "UMG" module in Build.cs to use UUserWidget
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy")
-	TSubclassOf<class UUserWidget> EnemyWidget;
-
-	//GameDev course Video 206 does this just when needed in the cpp file
-	//we want to use it several places so we want a pointer to it
-	UUserWidget* EnemyHealtBar{nullptr};
-
-	FVector EnemyPosition;
-
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -101,4 +77,6 @@ private:
 	void SwitchInputType();
 
 	bool bNormalInputType{ true };		//Used to switch between WASD input behavior
+
+	class AMainPlayerController* MyPlayerController{ nullptr };
 };

@@ -20,8 +20,8 @@ public:
 	class USphereComponent* PlayerSensingSphere{nullptr};
 
 	//The Controller for the NCP - similar to the PlayerController
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = AI)
-	class AAIController* AIController{ nullptr };
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = AI)
+	class AEnemyAIController* AIController{ nullptr };
 
 	UFUNCTION()
 	void OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
@@ -31,10 +31,6 @@ public:
 	UFUNCTION()
 	void OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 			UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex);
-
-	//Function that actually moves the NPC
-	//For now the target to move towards is the MainCharacter - Chase mode
-	void MoveToTarget(class AMainCharacter* MainCharacter);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = AI)
 	float Health{100.f};
