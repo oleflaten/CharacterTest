@@ -14,6 +14,7 @@
 #include "Blueprint/UserWidget.h"
 #include "Kismet/GameplayStatics.h"
 #include "MainPlayerController.h"
+#include "OurSaveGame.h"
 
 // Sets default values
 AMainCharacter::AMainCharacter()
@@ -66,6 +67,16 @@ void AMainCharacter::BeginPlay()
 
 	AttackCollider->OnComponentBeginOverlap.AddDynamic(this, &AMainCharacter::OnOverlap);
 
+
+
+	//This is just a simple hack, to go to flip flop levels. You should
+	//of course have a logic to advance thru your real levels
+	FString tempLevel = GetWorld()->GetMapName();
+	UE_LOG(LogTemp, Warning, TEXT("Level: %s"), *tempLevel)
+	if (tempLevel == FString("UEDPIE_0_FinalMap") )
+		nextLevel = FName("StartMap");
+	else
+		nextLevel = FName("FinalMap");
 }
 
 // Called every frame
@@ -84,6 +95,10 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	PlayerInputComponent->BindAxis("MoveForward", this, &AMainCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AMainCharacter::MoveRight);
 	PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
+
+	PlayerInputComponent->BindAction("NextLevel", IE_Pressed, this, &AMainCharacter::ChangeLevel);
+	PlayerInputComponent->BindAction("SaveGame", IE_Pressed, this, &AMainCharacter::SaveGame);
+	PlayerInputComponent->BindAction("LoadGame", IE_Pressed, this, &AMainCharacter::LoadGame);
 
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &AMainCharacter::StartCrouch);	//not allowed to call Crouch directly
@@ -193,6 +208,40 @@ void AMainCharacter::StopAttack()
 	UE_LOG(LogTemp, Warning, TEXT("Stop Attack called"))
 	bIsAttacking = false;
 	AttackCollider->SetGenerateOverlapEvents(false);
+}
+
+void AMainCharacter::ChangeLevel()
+{
+	if(GetWorld())
+		UGameplayStatics::OpenLevel(GetWorld(), nextLevel);
+}
+
+void AMainCharacter::SaveGame()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Saving game"))
+	UOurSaveGame *SaveGameTemp = Cast<UOurSaveGame>(UGameplayStatics::CreateSaveGameObject(UOurSaveGame::StaticClass()));
+
+	SaveGameTemp->PlayerPosition = this->GetActorLocation();
+	SaveGameTemp->SaveData.Ammo = 45;
+	SaveGameTemp->SaveData.Health = 97.4f;
+	SaveGameTemp->SaveData.Stamina = 0.f;
+	
+	UGameplayStatics::SaveGameToSlot(SaveGameTemp, TEXT("Slot1"), 0);
+}
+
+void AMainCharacter::LoadGame()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Loading game"))
+
+	UOurSaveGame *SaveGameTemp = Cast<UOurSaveGame>(UGameplayStatics::CreateSaveGameObject(UOurSaveGame::StaticClass()));
+
+	SaveGameTemp = Cast<UOurSaveGame>(UGameplayStatics::LoadGameFromSlot("Slot1", 0));
+
+	UE_LOG(LogTemp, Warning, TEXT("Ammo: %d"), SaveGameTemp->SaveData.Ammo)
+	UE_LOG(LogTemp, Warning, TEXT("Healt: %f"), SaveGameTemp->SaveData.Health)
+	UE_LOG(LogTemp, Warning, TEXT("Stamina: %f"), SaveGameTemp->SaveData.Stamina)
+
+	this->SetActorLocation(SaveGameTemp->PlayerPosition);
 }
 
 void AMainCharacter::AttackFinished()	//Blueprint callable

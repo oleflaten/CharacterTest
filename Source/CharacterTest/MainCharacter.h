@@ -56,6 +56,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Anims")
 	class UAnimMontage* CombatMontage{ nullptr };
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Level")
+	FName nextLevel;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -73,6 +76,10 @@ private:
 
 	void StartAttack();
 	void StopAttack();
+
+	void ChangeLevel();
+	void SaveGame();
+	void LoadGame();
 
 	void SwitchInputType();
 
