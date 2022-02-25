@@ -6,6 +6,7 @@
 #include "MainCharacter.h"	//Since we move towards the Player
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Kismet/GameplayStatics.h"	//for GetPlayerController
 
 // Sets default values
 AEnemy::AEnemy()
@@ -17,6 +18,7 @@ AEnemy::AEnemy()
 	PlayerSensingSphere->SetupAttachment(GetRootComponent());
 	PlayerSensingSphere->InitSphereRadius(650.f);
 
+	//Sets value in MovementComponent:
 	GetCharacterMovement()->MaxWalkSpeed = 350.f;
 }
 
@@ -26,9 +28,10 @@ void AEnemy::BeginPlay()
 	Super::BeginPlay();
 
 	//Characters in level will automatically be given an AIController if not given a PlayerController
+	//For more advanced use, you should make an own version of the AIController and put the AI stuff in there
 	AIController = Cast<AAIController>(GetController());
 
-	//Had to put these here and not in the constructor, to get them to work
+	//Had to put these here and not in the constructor, to get them to work...
 	PlayerSensingSphere->OnComponentBeginOverlap.AddDynamic(this, &AEnemy::OnOverlap);
 	PlayerSensingSphere->OnComponentEndOverlap.AddDynamic(this, &AEnemy::OnOverlapEnd);
 }
@@ -40,25 +43,20 @@ void AEnemy::Tick(float DeltaTime)
 
 }
 
-// Called to bind functionality to input
-void AEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
-}
-
 void AEnemy::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	AMainCharacter* Player = Cast<AMainCharacter>(OtherActor);
 	if (Player)
 	{
-		Player->SetEnemy(this);
+		Player->SetEnemy(this);		//not important for the NPC AI stuff
 
-		//Easy way shown in GameDev course video 193:
-		// AIController->MoveToActor(Player, 100);
+
+		AIController->SetFocus(Player);		//This makes the NPC to rotate towards the player at all times
+		//Easy way to see if it works:
+		AIController->MoveToActor(Player, 100);
 
 		//or More elaborate way, but gives us more insight:
-		MoveToTarget(Player);
+		//MoveToTarget(Player);
 	}
 }
 
@@ -70,8 +68,9 @@ void AEnemy::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* Othe
 		Player->SetEnemy(nullptr);
 		UE_LOG(LogTemp, Warning, TEXT("Player Ends Overlap"));
 		AIController->StopMovement();
-	}
 
+		AIController->ClearFocus(EAIFocusPriority::Gameplay);
+	}
 }
 void AEnemy::MoveToTarget(AMainCharacter* MainCharacter)
 {
@@ -91,15 +90,26 @@ void AEnemy::MoveToTarget(AMainCharacter* MainCharacter)
 		AIController->MoveTo(AIMoverequest, &NavPath);
 	
 		// **************** this just shows us the path *********************
-		//auto guesses the type for us
-		auto PathPoints = NavPath->GetPathPoints();
-	
-		for (auto Point : PathPoints)
+		// can be deleted:
+		if(NavPath)
 		{
-			FVector Location = Point.Location;
-			UKismetSystemLibrary::DrawDebugSphere(this, Location, 25.f, 8, FLinearColor::Green, 3, 0.5f);
+			//auto guesses the type for us
+			auto PathPoints = NavPath->GetPathPoints();
+	
+			for (auto Point : PathPoints)
+			{
+				FVector Location = Point.Location;
+				UKismetSystemLibrary::DrawDebugSphere(this, Location, 25.f, 8, FLinearColor::Green, 3, 0.5f);
+			}
 		}
 	}
+
+	//// Called to bind functionality to input - not needed for this NPC
+	//void AEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+	//{
+	//	Super::SetupPlayerInputComponent(PlayerInputComponent);
+	//
+	//}
 }
 
 
