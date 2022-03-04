@@ -37,32 +37,25 @@ void AEnemy::BeginPlay()
 void AEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
-// Called to bind functionality to input
-void AEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
-}
-
-void AEnemy::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void AEnemy::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, 
+	int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	AMainCharacter* Player = Cast<AMainCharacter>(OtherActor);
 	if (Player)
 	{
 		Player->SetEnemy(this);
 
-		//Easy way shown in GameDev course video 193:
-		// AIController->MoveToActor(Player, 100);
+		//AIController->MoveToActor(Player, 100);
 
 		//or More elaborate way, but gives us more insight:
 		MoveToTarget(Player);
 	}
 }
 
-void AEnemy::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex)
+void AEnemy::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, 
+	int32 OtherBodyIndex)
 {
 	AMainCharacter* Player = Cast<AMainCharacter>(OtherActor);
 	if (AIController && Player)
