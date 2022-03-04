@@ -69,7 +69,7 @@ public:
 
 	class AMainPlayerController* MyPlayerController{nullptr};
 	
-	//Set the Enemy Health Bar Widget - all this should be moved to MainPlayerController!!
+	//Set the Enemy Health Bar Widget - move all this to MainPlayerController!!
 	//Have to include "UMG" module in Build.cs to use UUserWidget
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy")
 	TSubclassOf<class UUserWidget> EnemyWidget;
